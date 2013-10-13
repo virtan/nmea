@@ -1,0 +1,12 @@
+{application, nmea,
+ [
+  {description, "Network Measurement"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { nmea_app, []}},
+  {env, []}
+ ]}.
