@@ -9,7 +9,7 @@
     terminate/2,
     handle_info/2,
     handle_cast/2,
-    command/0
+    stat/0
 ]).
 
 -behaviour(gen_server).
@@ -44,13 +44,27 @@ init(none) ->
     {ok, TRef} = timer:send_interval(500, self(), timeout),
     {ok, #linux_stat_state{timer = TRef}}.
 
-handle_call(stat, _From, #linux_stat_state{tx_packet_rate = TX_packet_rate,
-                                           rx_packet_rate = RX_packet_rate,
-                                           tx_byte_rate = TX_byte_rate,
-                                           rx_byte_rate = RX_byte_rate
+interval_rate(Queue, QS) ->
+    lists:foldl(fun(El, Acc) -> Acc + El end, 0, queue:to_list(Queue)) / QS.
+
+handle_call(stat, _From, #linux_stat_state{tx_packet_rate = TPR,
+                                           rx_packet_rate = RPR,
+                                           tx_byte_rate = TBR,
+                                           rx_byte_rate = RBR,
+                                           tx_packet_rate_queue = TPRQ,
+                                           rx_packet_rate_queue = RPRQ,
+                                           tx_byte_rate_queue = TBRQ,
+                                           rx_byte_rate_queue = RBRQ,
+                                           queues_size = QS
                                           } = State) ->
-    {reply, [{tx_packet_rate, TX_packet_rate}, {rx_packet_rate, RX_packet_rate},
-             {tx_byte_rate, TX_byte_rate}, {rx_byte_rate, RX_byte_rate}], State};
+    Interval = if
+        QS >= 30 ->
+            [{tx_packet_rate_15s, interval_rate(TPRQ, QS)}, {rx_packet_rate_15s, interval_rate(RPRQ, QS)},
+             {tx_byte_rate_15s, interval_rate(TBRQ, QS)}, {rx_byte_rate_15s, interval_rate(RBRQ, QS)}];
+        true -> []
+    end,
+    {reply, [{tx_packet_rate, TPR}, {rx_packet_rate, RPR},
+             {tx_byte_rate, TBR}, {rx_byte_rate, RBR}] ++ Interval, State};
 handle_call(stop, _From, #linux_stat_state{timer = Timer} = State) ->
     timer:cancel(Timer),
     {stop, normal, stopped, State};
@@ -121,5 +135,5 @@ code_change(_, State, _) ->
 terminate(_, _) ->
     ok.
 
-command() ->
-    gen_server:call(?MODULE, command).
+stat() ->
+    gen_server:call(?MODULE, stat).
