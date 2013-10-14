@@ -1,19 +1,21 @@
 ## Name of the node
--name nmea@127.0.0.1
+-name a@10.128.73.57
 
 ## Cookie for distributed erlang
--setcookie nmea
+-setcookie abcd
 
 ## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive
 ## (Disabled by default..use with caution!)
 ##-heart
 
 ## Enable kernel poll and a few async threads
-##+K true
-##+A 5
++K true
+#+A 16
 
 ## Increase number of concurrent ports/sockets
 ##-env ERL_MAX_PORTS 4096
 
 ## Tweak GC to run more often
 ##-env ERL_FULLSWEEP_AFTER 10
+
+-kernel dist_nodelay false

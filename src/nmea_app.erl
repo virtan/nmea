@@ -10,7 +10,9 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    nmea_sup:start_link().
+    lager:start(),
+    nmea_sup:start_link(),
+    nmea_mgr:start_link().
 
 stop(_State) ->
     ok.

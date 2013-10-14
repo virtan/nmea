@@ -9,7 +9,7 @@
     terminate/2,
     handle_info/2,
     handle_cast/2,
-    stat/0
+    current/0
 ]).
 
 -behaviour(gen_server).
@@ -47,7 +47,7 @@ init(none) ->
 interval_rate(Queue, QS) ->
     lists:foldl(fun(El, Acc) -> Acc + El end, 0, queue:to_list(Queue)) / QS.
 
-handle_call(stat, _From, #linux_stat_state{tx_packet_rate = TPR,
+handle_call(current, _From, #linux_stat_state{tx_packet_rate = TPR,
                                            rx_packet_rate = RPR,
                                            tx_byte_rate = TBR,
                                            rx_byte_rate = RBR,
@@ -63,8 +63,8 @@ handle_call(stat, _From, #linux_stat_state{tx_packet_rate = TPR,
              {tx_byte_rate_15s, interval_rate(TBRQ, QS)}, {rx_byte_rate_15s, interval_rate(RBRQ, QS)}];
         true -> []
     end,
-    {reply, [{tx_packet_rate, TPR}, {rx_packet_rate, RPR},
-             {tx_byte_rate, TBR}, {rx_byte_rate, RBR}] ++ Interval, State};
+    {reply, nmea_utils:pretty([{tx_packet_rate, TPR}, {rx_packet_rate, RPR},
+             {tx_byte_rate, TBR}, {rx_byte_rate, RBR}] ++ Interval), State};
 handle_call(stop, _From, #linux_stat_state{timer = Timer} = State) ->
     timer:cancel(Timer),
     {stop, normal, stopped, State};
@@ -135,5 +135,5 @@ code_change(_, State, _) ->
 terminate(_, _) ->
     ok.
 
-stat() ->
-    gen_server:call(?MODULE, stat).
+current() ->
+    gen_server:call(?MODULE, current).

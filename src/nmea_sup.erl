@@ -25,6 +25,7 @@ start_link() ->
 
 init([]) ->
     {ok, { {one_for_one, 5, 10}, [
-                                  {linux_stat_sup, {linux_stat, start_link, []}, permanent, 5000, worker, [linux_stat]}
-                                 ]} }.
+                {linux_stat_sup, {linux_stat, start_link, []}, permanent, 5000, worker, [linux_stat]},
+                {delay_stat_sup, {delay_stat, start_link, []}, permanent, 5000, worker, [delay_stat]}
+            ]} }.
 
