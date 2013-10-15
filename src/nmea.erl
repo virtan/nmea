@@ -14,7 +14,8 @@
     activate/1,
     set_rate/1,
     set_amount/2,
-    apply_to_group/2
+    apply_to_group/2,
+    extra_payload/0
 ]).
 
 -behaviour(supervisor).
@@ -134,7 +135,8 @@ handle_cast(_, State) ->
     {noreply, State}.
 
 extra_payload() ->
-    binary:copy(<<11>>, 1000).
+    {ok, PayloadSize} = application:get_env(nmea, payload),
+    binary:copy(<<11>>, PayloadSize).
 
 handle_info({timer_event, EveryCycle}, #nmea_state{pair_remote = Remote} = State) ->
     [ping(Remote, {os:timestamp(), extra_payload()}) || _ <- lists:seq(1, EveryCycle)],
