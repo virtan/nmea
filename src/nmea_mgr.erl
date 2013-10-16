@@ -14,7 +14,7 @@
 
 -behaviour(gen_server).
 
--record(nmea_mgr, {rate = 0, increase_timer = undefined, report_timer = undefined, start_time, log_file}).
+-record(nmea_mgr, {rate = 0, increase_timer = undefined, report_timer = undefined, start_time, log_file, stopping = false}).
 
 start() ->
     gen_server:start({local, ?MODULE}, ?MODULE, none, []).
@@ -92,6 +92,22 @@ handle_cast(stop, State) ->
 handle_cast(_, State) ->
     {noreply, State}.
 
+stop_timers(#nmea_mgr{
+        increase_timer = TRef1,
+        report_timer = TRef2
+    } = State) ->
+    case TRef1 of
+        undefined -> do_nothing;
+        _ -> timer:cancel(TRef1)
+    end,
+    case TRef2 of
+        undefined -> do_nothing;
+        _ -> timer:cancel(TRef2)
+    end,
+    State#nmea_mgr{increase_timer = undefined, report_timer = undefined}.
+
+handle_info(increase, #nmea_mgr{stopping = true} = State) ->
+    {noreply, State};
 handle_info(increase, #nmea_mgr{rate = Rate} = State) ->
     NewRate = case Rate of
         0 -> 10240;
@@ -117,20 +133,23 @@ handle_info(report, #nmea_mgr{
         ]),
     file:write(IoD, list_to_binary(ToLog)),
     Delay = proplists:get_value(delay_15s, DelayStat),
-    if
-        Delay > 3000 -> stop();
-        true -> do_nothing
+    NewState = if
+        Delay > 1000 -> 
+            State1 = stop_timers(State),
+            nmea:set_rate(0),
+            stop(),
+            State1#nmea_mgr{stopping = true};
+        true -> State
     end,
-    {noreply, State};
+    {noreply, NewState};
 handle_info(_, State) ->
     {noreply, State}.
 
 code_change(_, State, _) ->
     {ok, State}.
 
-terminate(_, #nmea_mgr{increase_timer = TRef1, report_timer = TRef2, log_file = IoD}) ->
-    timer:cancel(TRef1),
-    timer:cancel(TRef2),
+terminate(_, #nmea_mgr{log_file = IoD} = State) ->
+    stop_timers(State),
+    nmea:set_rate(0),
     file:close(IoD),
-    io:format("done~n", []),
     ok.
