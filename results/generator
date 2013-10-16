@@ -1,0 +1,3 @@
+#!/bin/bash
+
+for i in `ls *.log | cut -d '.' -f 1` ; do a=`echo -n $i | tr '_' ' '` ; sed "s/FNAME/$i/g;s/PNAME/$a/g" template > $i.plt ; done
