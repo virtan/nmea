@@ -1,6 +1,6 @@
 #set term aqua size 1600 1000 font 'Tahoma,16' enhanced
-set term pngcairo size 1600, 1000 font 'Tahoma,10' enhanced
-set output 'nagle-comparison.png'
+set term pngcairo size 1600, 1000 font 'Tahoma,10' enhanced; set output 'compare_nagle.png'
+set termoption dash
 set title 'Nagle comparison'
 #set termoption dash
 #set dummy jw,y

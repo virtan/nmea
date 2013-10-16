@@ -1,6 +1,6 @@
-set term aqua size 1600 1000 font 'Tahoma,16' enhanced
-set title 'attempt nagle async:0 kpoll payload:10+'
+set term pngcairo size 1600, 1000 font 'Tahoma,10' enhanced; set output 'attempt_nagle_async:0_kpoll_payload:10+.png'
 set termoption dash
+set title 'attempt nagle async:0 kpoll payload:10+'
 set dummy jw,y
 set grid xtics nomxtics noytics nomytics noztics nomztics \
  nox2tics nomx2tics y2tics nomy2tics nocbtics nomcbtics

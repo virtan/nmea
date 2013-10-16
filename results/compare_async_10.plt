@@ -1,4 +1,5 @@
-set term aqua size 1600 1000 font 'Tahoma,16' enhanced
+set term pngcairo size 1600, 1000 font 'Tahoma,10' enhanced; set output 'compare_async_10.png'
+set termoption dash
 set title 'Delay comparison for different async pools and 10+ packets'
 #set termoption dash
 #set dummy jw,y

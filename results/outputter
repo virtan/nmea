@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [ "$1" == "aqua" ] ; then
-    for i in `ls *.plt` ; do sed "s/^set term.*$/set term pngcairo size 1600, 1000 font 'Tahoma,10' enhanced/;s/^set output .*$//" $i > $i.new ; done
+    for i in `ls *.plt` ; do sed "s/^set term.*$/set term aqua size 1600 1000 font 'Tahoma,16' enhanced/;s/^set output .*$//" $i > $i.new ; mv $i.new $i ; done
 elif [ "$1" == "png" ] ; then
-    for i in `ls *.plt` ; do sed "s/^set output .*$//;s/^set term.*$/set term pngcairo size 1600, 1000 font 'Tahoma,10' enhanced\nset output '$n'/" $i > $i.new ; done
+    for i in `ls *.plt` ; do n=`echo -n $i | cut -d '.' -f 1` ; sed "s/^set output .*$//;s/^set term.*$/set term pngcairo size 1600, 1000 font 'Tahoma,10' enhanced; set output '$n.png'/" $i > $i.new ; mv $i.new $i ; done
 else
     echo "Unknown terminal, use aqua or png"
 fi

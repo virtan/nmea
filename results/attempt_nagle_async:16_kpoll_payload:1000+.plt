@@ -1,4 +1,4 @@
-set term aqua size 1600 1000 font 'Tahoma,16' enhanced
+set term pngcairo size 1600, 1000 font 'Tahoma,10' enhanced; set output 'attempt_nagle_async:16_kpoll_payload:1000+.png'
 set title 'attempt nagle async:16 kpoll payload:1000+'
 set termoption dash
 set dummy jw,y
